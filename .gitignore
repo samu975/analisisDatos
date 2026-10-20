@@ -218,3 +218,11 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Claude Code
+.claude/
+CLAUDE.MD
+
+# Codex
+.codex/
+CODEX.MD
