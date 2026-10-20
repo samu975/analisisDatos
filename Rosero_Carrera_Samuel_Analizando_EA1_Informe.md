@@ -144,26 +144,33 @@ Mide la consistencia entre los métodos. Un valor alto indica que los datos extr
 
 ### 6.4 Resultados de las métricas
 
-*(Completar con los valores reales al ejecutar el notebook. El notebook calcula e imprime automáticamente estas métricas.)*
+| Métrica | BeautifulSoup | Selenium | Scrapy |
+|---------|:---:|:---:|:---:|
+| Completitud | 9/10 = 90 % | 8/10 = 80 % | 9/10 = 90 % |
+| Ejecución sin errores | Sí | Sí | Sí |
+
+**Concordancia general entre métodos:** 9/10 = 90 %.
+
+Nueve de los diez campos fueron extraídos con el mismo valor por al menos dos métodos. El único campo que ningún método obtuvo fue *editorial*, ya que la ficha del producto en Buscalibre no incluye ese dato. Selenium no capturó *disponibilidad* debido a que el elemento no era visible en el viewport del navegador headless al momento de la consulta.
 
 ## 7. Resultados y comparación
 
 ### 7.1 Tabla comparativa
 
-*(Esta tabla se genera automáticamente en el notebook. Incluir aquí los resultados obtenidos al ejecutarlo.)*
+Datos obtenidos en la ejecución del 19 de octubre de 2026.
 
 | Campo | BeautifulSoup | Selenium | Scrapy |
 |-------|--------------|----------|--------|
-| Título | *(resultado)* | *(resultado)* | *(resultado)* |
-| Autor | *(resultado)* | *(resultado)* | *(resultado)* |
-| ISBN | *(resultado)* | *(resultado)* | *(resultado)* |
-| Precio actual | *(resultado)* | *(resultado)* | *(resultado)* |
-| Precio original | *(resultado)* | *(resultado)* | *(resultado)* |
-| Descuento | *(resultado)* | *(resultado)* | *(resultado)* |
-| Disponibilidad | *(resultado)* | *(resultado)* | *(resultado)* |
-| Editorial | *(resultado)* | *(resultado)* | *(resultado)* |
-| N.º de páginas | *(resultado)* | *(resultado)* | *(resultado)* |
-| Idioma | *(resultado)* | *(resultado)* | *(resultado)* |
+| Título | Cien años de soledad (Edición conmemorativa de la RAE y la ASALE) | Cien años de soledad (Edición conmemorativa de la RAE y la ASALE) | Cien años de soledad (Edición conmemorativa de la RAE y la ASALE) |
+| Autor | Gabriel García Márquez | Gabriel García Márquez | Gabriel García Márquez |
+| ISBN | 9789585118010 | 9789585118010 | 9789585118010 |
+| Precio actual | $ 64.350 | $ 64.350 | $ 64.350 |
+| Precio original | $ 99.000 | $ 99.000 | $ 99.000 |
+| Descuento | -35 % | -35 % | -35 % |
+| Disponibilidad | Quedan 18 unidades | *(no extraído)* | Quedan 18 unidades |
+| Editorial | *(no disponible en la ficha)* | *(no disponible en la ficha)* | *(no disponible en la ficha)* |
+| N.º de páginas | 614 | 614 | 614 |
+| Idioma | Español | Español | Español |
 
 ### 7.2 Análisis comparativo
 
@@ -179,9 +186,10 @@ Mide la consistencia entre los métodos. Un valor alto indica que los datos extr
 
 ### 7.3 Diferencias y causas de discrepancia
 
-- **BeautifulSoup y Scrapy** trabajan sobre HTML estático, por lo que sus resultados deberían ser muy similares. Las diferencias, si las hay, se deben a diferencias en los selectores utilizados o en el orden de prioridad de las fuentes de datos.
-- **Selenium** puede obtener campos adicionales que los otros dos métodos no logran extraer, porque la ficha técnica de Buscalibre (editorial, páginas, idioma) puede cargarse mediante JavaScript tras la solicitud inicial.
-- Los campos básicos (título, precio, ISBN) suelen estar disponibles tanto en datos estructurados JSON-LD como en el HTML estático, por lo que los tres métodos deberían coincidir.
+- **BeautifulSoup y Scrapy** obtuvieron resultados idénticos (9/10 campos), lo cual es coherente porque ambos trabajan sobre el mismo HTML estático devuelto por el servidor.
+- **Selenium** obtuvo 8/10 campos. No logró capturar la *disponibilidad* (elemento `p.stock`), probablemente porque el navegador headless no desplegó ese elemento en el viewport al momento de la consulta. Sin embargo, fue el único método que accedió al DOM tras la ejecución de JavaScript, lo que le permitiría extraer contenido dinámico en otros escenarios.
+- El campo **editorial** no fue extraído por ningún método porque la ficha del producto en Buscalibre no incluye una fila de "Editorial" o "Sello" en su estructura HTML.
+- Los campos comunes (título, autor, ISBN, precios, descuento, páginas, idioma) coincidieron exactamente entre los tres métodos, lo que confirma la fiabilidad de la extracción.
 
 ### 7.4 Limitaciones
 
@@ -193,15 +201,15 @@ Mide la consistencia entre los métodos. Un valor alto indica que los datos extr
 
 ## 8. Conclusiones
 
-1. **Cada herramienta tiene un caso de uso óptimo.** BeautifulSoup es ideal para extracciones rápidas sobre HTML estático. Selenium es necesario cuando el sitio carga contenido con JavaScript. Scrapy es la mejor opción para proyectos de scraping a gran escala.
+1. **BeautifulSoup y Scrapy lograron la mayor completitud (90 %).** Ambos extrajeron 9 de 10 campos a partir del HTML estático, demostrando que gran parte de la información de producto en Buscalibre está disponible sin necesidad de ejecutar JavaScript.
 
-2. **La elección del método depende del sitio y del objetivo.** En el caso de Buscalibre, parte de la información está en el HTML estático (título, precio, ISBN), pero la ficha técnica completa puede requerir renderizado JavaScript, donde Selenium tiene ventaja.
+2. **Selenium obtuvo 80 % de completitud pero aporta ventajas en otros escenarios.** Aunque en este caso no capturó la disponibilidad, Selenium es el único método capaz de acceder a contenido cargado dinámicamente, lo que lo hace indispensable en sitios que dependen fuertemente de JavaScript.
 
-3. **El respeto a las condiciones de acceso es fundamental.** Se verificó `robots.txt`, se realizó un número mínimo de solicitudes y no se intentó evadir ningún mecanismo de protección.
+3. **La concordancia del 90 % confirma la fiabilidad de los datos.** Nueve de diez campos fueron extraídos con valores idénticos por al menos dos métodos, lo que valida que la información obtenida es consistente y correcta.
 
-4. **Las métricas de éxito permiten una evaluación objetiva.** La completitud mide el alcance de cada método, la concordancia valida la consistencia entre ellos, y la ejecución sin errores evalúa la robustez del código.
+4. **El respeto a las condiciones de acceso es fundamental.** Se verificó `robots.txt` antes de realizar solicitudes, se usó una única solicitud por método y no se intentó evadir ningún mecanismo de protección. Las fichas de producto están explícitamente permitidas.
 
-5. **Los tres métodos son complementarios.** En un proyecto real, podría usarse BeautifulSoup para prototipos rápidos, Selenium para sitios dinámicos específicos y Scrapy para recolección masiva de datos.
+5. **Los tres métodos son complementarios.** En un proyecto real, BeautifulSoup es ideal para prototipos rápidos, Selenium para sitios dinámicos y Scrapy para recolección a escala con gestión automática de `robots.txt` y concurrencia.
 
 ## 9. Bibliografía
 
